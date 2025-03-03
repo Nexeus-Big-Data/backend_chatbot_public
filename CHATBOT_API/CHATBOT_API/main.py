@@ -1,21 +1,3 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import openai
-import os
-from dotenv import load_dotenv
-
-# Cargar variables de entorno desde el archivo .env
-load_dotenv()
-
-# Obtener la clave de API de OpenAI desde las variables de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Inicializar la aplicación FastAPI
-app = FastAPI()
-
-# Definir un modelo de datos para la solicitud
-class ChatRequest(BaseModel):
-    message: str
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
