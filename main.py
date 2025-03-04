@@ -1,31 +1,35 @@
-from fastapi import FastAPI
-from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import openai
 import os
-from models.model import Model
+from dotenv import load_dotenv
 
-# Inicializamos FastAPI
-app = FastAPI() #Creamos nuestra estanci FastAPI
-
-# Cargamos las variables de entorno
+# Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-openai.api_key = os.getenv('SECRET_KEY')
+# Obtener la clave de API de OpenAI desde las variables de entorno
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Ruta POST para generar una respuesta usando OpenAI
-@app.post('/chat/')
-def generate_response(prompt: "Model"): #Model va a ser la clase que va a tener el modelo de la estructura de lo que estamos enviando para hacer la petición
-    model = "gpt-3.5-turbo"
+# Inicializar la aplicación FastAPI
+app = FastAPI()
 
-    # Hacemos la solicitud a la API de OpenAI
-    response = openai.Completion.create(
-        engine=model,
-        prompt=prompt.text,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.3
-    )
+# Definir un modelo de datos para la solicitud
+class ChatRequest(BaseModel):
+    message: str
 
-    # Retornamos la respuesta generada por el modelo
-    return {"response": response.choices[0].text.strip()}  # Usamos .strip() para eliminar espacios extras
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    try:
+        response = openai.completions.create(  
+            model="gpt-3.5-turbo",
+            prompt=request.message,
+            max_tokens=150  # Puedes ajustar esto según tus necesidades
+        )
+        return {"response": response['choices'][0]['message']['content']}
+
+    except openai.OpenAIError as e:  # Manejo de errores actualizado
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/")
+async def root():
+    return {"message": "Chatbot API Running!"}
