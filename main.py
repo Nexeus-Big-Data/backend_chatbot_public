@@ -20,15 +20,17 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
-        response = openai.completions.create(  
-            model="gpt-3.5-turbo",
-            prompt=request.message,
-            max_tokens=150  # Puedes ajustar esto según tus necesidades
+        # Aquí se llama a la API de OpenAI
+        response = openai.ChatCompletion.create(  # Verifica que sea ChatCompletion
+            model="gpt-3.5-turbo",  # Modelo de chat, correcto
+            messages=[{"role": "user", "content": request.message}],  # Mensaje del usuario
+            max_tokens=150,  # Límite de tokens en la respuesta
         )
         return {"response": response['choices'][0]['message']['content']}
 
-    except openai.OpenAIError as e:  # Manejo de errores actualizado
-        raise HTTPException(status_code=500, detail=str(e))
+    except openai.error.OpenAIError as e:
+        print(f"Error OpenAI: {e}")
+        raise HTTPException(status_code=500, detail=f"Error OpenAI: {str(e)}")
 
 @app.get("/")
 async def root():
