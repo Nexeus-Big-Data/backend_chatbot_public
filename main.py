@@ -1,34 +1,45 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import openai
 import os
+import openai
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde el archivo .env
-load_dotenv()
+# Cargar variables de entorno desde .env
+load_dotenv(dotenv_path='backend_chatbot_public-desarrollo2\.env')
 
-# Obtener la clave de API de OpenAI desde las variables de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Obtener la clave de API de OpenAI
+api_key = os.getenv("OPENAI_API_KEY")
+#print(f"API Key cargada: {api_key}")
+
+# Para verificar si se muestran las variables de entorno
+#print("Loaded environment variables:")
+#print(os.environ)
+
+if not api_key:
+    raise ValueError("La clave OPENAI_API_KEY no está configurada en el archivo .env")
+
+# Inicializar el cliente de OpenAI
+client = openai.OpenAI(api_key=api_key)
 
 # Inicializar la aplicación FastAPI
 app = FastAPI()
 
-# Definir un modelo de datos para la solicitud
+# Modelo de solicitud
 class ChatRequest(BaseModel):
     message: str
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
-        # Aquí se llama a la API de OpenAI
-        response = openai.ChatCompletion.create(  # Verifica que sea ChatCompletion
-            model="gpt-3.5-turbo",  # Modelo de chat, correcto
-            messages=[{"role": "user", "content": request.message}],  # Mensaje del usuario
-            max_tokens=150,  # Límite de tokens en la respuesta
+        # Llamar a OpenAI correctamente usando el cliente
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": request.message}],
+            max_tokens=150,
         )
-        return {"response": response['choices'][0]['message']['content']}
+        return {"response": response.choices[0].message.content}
 
-    except openai.error.OpenAIError as e:
+    except openai.OpenAIError as e:
         print(f"Error OpenAI: {e}")
         raise HTTPException(status_code=500, detail=f"Error OpenAI: {str(e)}")
 
