@@ -17,7 +17,7 @@ app = FastAPI()
 # CORSMiddleware corregido:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # OJO!!!!!!!!!!!!!!!!!!Cambiar esto por URLs específicas en producción
+    allow_origins=["https://backend-chatbot-public-1-5pjk.onrender.com"],  # OJO!!!!!!!!!!!!!!!!!!Cambiar esto por URLs específicas en producción
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
