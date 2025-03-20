@@ -24,6 +24,14 @@ client = openai.OpenAI(api_key=api_key)
 # Inicializar la aplicación FastAPI
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://mi-frontend-js.onrender.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Modelo de solicitud
 class ChatRequest(BaseModel):
     message: str
