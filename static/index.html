@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario para enviar a FastAPI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>CHATBOT NEXEUS</h1>
+
+  <input type="text" id="user-input" placeholder="Escribe tu pregunta..." />
+  <button onclick="sendToPython()">Enviar</button>
+
+  <div id="response">Aquí aparecerá la respuesta...</div>
+
+  <script>
+    async function sendToPython() {
+      const input = document.getElementById('user-input').value;
+
+      if (!input.trim()) {
+        alert("Por favor, introduce una pregunta.");
+        return;
+      }
+
+      // Llamada a tu backend (FastAPI)
+      const responseBox = document.getElementById('response');
+      responseBox.innerText = "Esperando respuesta...";
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question: input })
+        });
+
+        const data = await response.json();
+        responseBox.innerText = "Respuesta: " + data.answer;
+
+      } catch (error) {
+        responseBox.innerText = "Error al enviar la pregunta.";
+        console.error("Error:", error);
+      }
+    }
+  </script>
+
+</body>
+</html>
